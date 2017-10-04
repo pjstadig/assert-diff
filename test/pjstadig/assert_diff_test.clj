@@ -12,67 +12,87 @@
      @reports#))
 
 (deftest t-assert-object-diff
-  (is (= #{(pass* 16 :a :a "msg")}
+  (is (= #{(pass* {:file "assert_diff_test.clj" :line 16} :a :a "msg")}
          (reporting (is (= :a :a) "msg"))))
-  (is (= #{(fail* 18 :a :b "msg")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 18} :a :b "msg")}
          (reporting (is (= :a :b) "msg")))))
 
 (deftest t-assert-map-diff
-  (is (= #{(pass* 22 {:a :b} {:a :b} "msg")}
+  (is (= #{(pass* {:file "assert_diff_test.clj" :line 23} {:a :b} {:a :b}
+                  "msg")}
          (reporting (is (= {:a :b} {:a :b}) "msg"))))
-  (is (= #{(fail* 24 :d :e "msg: in [:c]")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 25} :d :e "msg: in [:c]")}
          (reporting (is (= {:a :b :c :d} {:a :b :c :e}) "msg"))))
-  (is (= #{(fail* 26 #{:a} #{} "msg: map is missing keys")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 28} #{:a} #{}
+                  "msg: map is missing keys")}
          (reporting (is (= {:a :b} {}) "msg"))))
-  (is (= #{(fail* 28 #{} #{:a} "msg: map has extra keys")}
-         (reporting (is (= {} {:a :b}) "msg")))))
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 31} #{} #{:a}
+                  "msg: map has extra keys")}
+         (reporting (is (= {} {:a :b}) "msg"))))
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 35} #{} #{:f}
+                  "msg: map has extra keys")
+           (fail* {:file "assert_diff_test.clj" :line 35} :d :e "msg: in [:c]")}
+         (reporting (is (= {:a :b :c :d} {:a :b :c :e :f :g}) "msg")))))
 
 (deftest t-assert-vector-diff
-  (is (= #{(pass* 32 [:a] [:a] "msg")}
+  (is (= #{(pass* {:file "assert_diff_test.clj" :line 39} [:a] [:a] "msg")}
          (reporting (is (= [:a] [:a]) "msg"))))
-  (is (= #{(fail* 34 :b :d "msg: in [1]")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 41} :b :d "msg: in [1]")}
          (reporting (is (= [:a :b :c] [:a :d :c]) "msg"))))
-  (is (= #{(fail* 36 2 1 "msg: vector length is different")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 44} 2 1
+                  "msg: vector length is different")}
          (reporting (is (= [:a :b] [:a]) "msg"))))
-  (is (= #{(fail* 38 1 2 "msg: vector length is different")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 47} 1 2
+                  "msg: vector length is different")}
          (reporting (is (= [:a] [:a :b]) "msg")))))
 
 (deftest t-assert-set-diff
-  (is (= #{(pass* 42 #{:a} #{:a} "msg")}
+  (is (= #{(pass* {:file "assert_diff_test.clj" :line 51} #{:a} #{:a} "msg")}
          (reporting (is (= #{:a} #{:a}) "msg"))))
-  (is (= #{(fail* 45 #{} #{:c} "msg: set has extra values")
-           (fail* 45 #{:b} #{} "msg: set is missing values")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 56} #{} #{:c}
+                  "msg: set has extra values")
+           (fail* {:file "assert_diff_test.clj" :line 56} #{:b} #{}
+                  "msg: set is missing values")}
          (reporting (is (= #{:a :b} #{:a :c}) "msg")))))
 
 (deftest t-assert-seq-diff
-  (is (= #{(pass* 49 '(:a) '(:a) "msg")}
+  (is (= #{(pass* {:file "assert_diff_test.clj" :line 60} '(:a) '(:a) "msg")}
          (reporting (is (= '(:a) '(:a)) "msg"))))
-  (is (= #{(fail* 51 :b :d "msg: in [1]")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 62} :b :d "msg: in [1]")}
          (reporting (is (= '(:a :b :c) '(:a :d :c)) "msg"))))
-  (is (= #{(fail* 53 2 1 "msg: seq length is different")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 65} 2 1
+                  "msg: seq length is different")}
          (reporting (is (= '(:a :b) '(:a)) "msg"))))
-  (is (= #{(fail* 55 1 2 "msg: seq length is different")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 68} 1 2
+                  "msg: seq length is different")}
          (reporting (is (= '(:a) '(:a :b)) "msg"))))
   (testing "seq first"
-    (is (= #{(pass* 58 '(:a) '(:a) "msg")}
+    (is (= #{(pass* {:file "assert_diff_test.clj" :line 71} '(:a) '(:a) "msg")}
            (reporting (is (= (lazy-seq '(:a)) '(:a)) "msg"))))
-    (is (= #{(fail* 60 :b :d "msg: in [1]")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 74} :b :d
+                    "msg: in [1]")}
            (reporting (is (= (lazy-seq '(:a :b :c)) '(:a :d :c)) "msg"))))
-    (is (= #{(fail* 62 2 1 "msg: seq length is different")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 77} 2 1
+                    "msg: seq length is different")}
            (reporting (is (= (lazy-seq '(:a :b)) '(:a)) "msg"))))
-    (is (= #{(fail* 64 1 2 "msg: seq length is different")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 80} 1 2
+                    "msg: seq length is different")}
            (reporting (is (= (lazy-seq '(:a)) '(:a :b)) "msg")))))
   (testing "seq last"
-    (is (= #{(pass* 67 '(:a) '(:a) "msg")}
+    (is (= #{(pass* {:file "assert_diff_test.clj" :line 83} '(:a) '(:a) "msg")}
            (reporting (is (= '(:a) (lazy-seq '(:a))) "msg"))))
-    (is (= #{(fail* 69 :b :d "msg: in [1]")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 85} :b :d "msg: in [1]")}
            (reporting (is (= '(:a :b :c) (lazy-seq '(:a :d :c))) "msg"))))
-    (is (= #{(fail* 71 2 1 "msg: seq length is different")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 88} 2 1
+                    "msg: seq length is different")}
            (reporting (is (= '(:a :b) (lazy-seq '(:a))) "msg"))))
-    (is (= #{(fail* 73 1 2 "msg: seq length is different")}
+    (is (= #{(fail* {:file "assert_diff_test.clj" :line 91} 1 2
+                    "msg: seq length is different")}
            (reporting (is (= '(:a) (lazy-seq '(:a :b))) "msg"))))))
 
 (deftest t-recursive-diff
-  (is (= #{(fail* 78 #{:c} #{} "msg: in [:a :b 0] set is missing values")
-           (fail* 78 #{} #{:d} "msg: in [:a :b 0] set has extra values")}
+  (is (= #{(fail* {:file "assert_diff_test.clj" :line 98} #{:c} #{}
+                  "msg: in [:a :b 0] set is missing values")
+           (fail* {:file "assert_diff_test.clj" :line 98} #{} #{:d}
+                  "msg: in [:a :b 0] set has extra values")}
          (reporting (is (= {:a {:b [#{:c}]}} {:a {:b [#{:d}]}}) "msg")))))
