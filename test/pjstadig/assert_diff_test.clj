@@ -44,17 +44,35 @@
            (fail* 45 #{:b} #{} "msg: set is missing values")}
          (reporting (is (= #{:a :b} #{:a :c}) "msg")))))
 
-(deftest t-assert-list-diff
+(deftest t-assert-seq-diff
   (is (= #{(pass* 49 '(:a) '(:a) "msg")}
          (reporting (is (= '(:a) '(:a)) "msg"))))
   (is (= #{(fail* 51 :b :d "msg: in [1]")}
          (reporting (is (= '(:a :b :c) '(:a :d :c)) "msg"))))
-  (is (= #{(fail* 53 2 1 "msg: list length is different")}
+  (is (= #{(fail* 53 2 1 "msg: seq length is different")}
          (reporting (is (= '(:a :b) '(:a)) "msg"))))
-  (is (= #{(fail* 55 1 2 "msg: list length is different")}
-         (reporting (is (= '(:a) '(:a :b)) "msg")))))
+  (is (= #{(fail* 55 1 2 "msg: seq length is different")}
+         (reporting (is (= '(:a) '(:a :b)) "msg"))))
+  (testing "seq first"
+    (is (= #{(pass* 58 '(:a) '(:a) "msg")}
+           (reporting (is (= (lazy-seq '(:a)) '(:a)) "msg"))))
+    (is (= #{(fail* 60 :b :d "msg: in [1]")}
+           (reporting (is (= (lazy-seq '(:a :b :c)) '(:a :d :c)) "msg"))))
+    (is (= #{(fail* 62 2 1 "msg: seq length is different")}
+           (reporting (is (= (lazy-seq '(:a :b)) '(:a)) "msg"))))
+    (is (= #{(fail* 64 1 2 "msg: seq length is different")}
+           (reporting (is (= (lazy-seq '(:a)) '(:a :b)) "msg")))))
+  (testing "seq last"
+    (is (= #{(pass* 67 '(:a) '(:a) "msg")}
+           (reporting (is (= '(:a) (lazy-seq '(:a))) "msg"))))
+    (is (= #{(fail* 69 :b :d "msg: in [1]")}
+           (reporting (is (= '(:a :b :c) (lazy-seq '(:a :d :c))) "msg"))))
+    (is (= #{(fail* 71 2 1 "msg: seq length is different")}
+           (reporting (is (= '(:a :b) (lazy-seq '(:a))) "msg"))))
+    (is (= #{(fail* 73 1 2 "msg: seq length is different")}
+           (reporting (is (= '(:a) (lazy-seq '(:a :b))) "msg"))))))
 
 (deftest t-recursive-diff
-  (is (= #{(fail* 60 #{:c} #{} "msg: in [:a :b 0] set is missing values")
-           (fail* 60 #{} #{:d} "msg: in [:a :b 0] set has extra values")}
+  (is (= #{(fail* 78 #{:c} #{} "msg: in [:a :b 0] set is missing values")
+           (fail* 78 #{} #{:d} "msg: in [:a :b 0] set has extra values")}
          (reporting (is (= {:a {:b [#{:c}]}} {:a {:b [#{:d}]}}) "msg")))))

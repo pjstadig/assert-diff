@@ -90,12 +90,12 @@
     (when (seq extra-values)
       (fail line #{} extra-values msg "set has extra values"))))
 
-(defn assert-list-diff
+(defn assert-seq-diff
   [line expected actual msg]
   (let [expected-count (count expected)
         actual-count (count actual)]
     (if (not= expected-count actual-count)
-      (fail line expected-count actual-count msg "list length is different")
+      (fail line expected-count actual-count msg "seq length is different")
       (doseq [[i expected actual] (map vector (range) expected actual)]
         (when (not= expected actual)
           (with-context i
@@ -110,8 +110,8 @@
     (assert-vector-diff line expected actual msg)
     (and (set? expected) (set? actual))
     (assert-set-diff line expected actual msg)
-    (and (list? expected) (list? actual))
-    (assert-list-diff line expected actual msg)
+    (and (sequential? expected) (sequential? actual))
+    (assert-seq-diff line expected actual msg)
     :else
     (fail line expected actual msg)))
 
