@@ -1,4 +1,4 @@
-(defproject pjstadig/assert-diff "0.1.0-SNAPSHOT"
+(defproject pjstadig/assert-diff "0.1.0"
   :description "Fine grained equality assertions for Clojure data structures."
   :url "https://github.com/pjstadig/assert-diff"
   :license {:name "Eclipse Public License"
