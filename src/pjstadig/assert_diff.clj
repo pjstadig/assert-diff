@@ -127,8 +127,8 @@
   ([line]
    `(merge (file-and-line) {:line ~line})))
 
-(defmethod assert-expr '=
-  [msg [_ expected & actuals :as form]]
+(defn assert-expr-body
+  [msg expected actuals]
   `(let [file-and-line# (file-and-line)
          expected# ~expected
          actuals# (list ~@actuals)
@@ -139,3 +139,11 @@
          (if (= expected# actual#)
            (pass file-and-line# expected# actual# msg#)
            (assert-diff file-and-line# expected# actual# msg#))))))
+
+(defmethod assert-expr '=
+  [msg [_ expected & actuals :as form]]
+  (assert-expr-body msg expected actuals))
+
+(defmethod assert-expr `=
+  [msg [_ expected & actuals :as form]]
+  (assert-expr-body msg expected actuals))
