@@ -74,12 +74,13 @@
         actual-count (count actual)]
     (if (not= expected-count actual-count)
       (fail file-and-line expected-count actual-count msg
-            "vector length is different")
-      (doseq [[i expected] (map vector (range) expected)
-              :let [actual (nth actual i)]]
-        (when (not= expected actual)
-          (with-context i
-            (assert-diff file-and-line expected actual msg)))))))
+            "vector length is different"))
+    (doseq [i (range (min expected-count actual-count))
+            :let [expected (nth expected i)
+                  actual (nth actual i)]]
+      (when (not= expected actual)
+        (with-context i
+          (assert-diff file-and-line expected actual msg))))))
 
 (defn assert-set-diff
   [file-and-line expected actual msg]
@@ -92,15 +93,18 @@
 
 (defn assert-seq-diff
   [file-and-line expected actual msg]
-  (let [expected-count (count expected)
-        actual-count (count actual)]
-    (if (not= expected-count actual-count)
-      (fail file-and-line expected-count actual-count msg
-            "seq length is different")
-      (doseq [[i expected actual] (map vector (range) expected actual)]
-        (when (not= expected actual)
-          (with-context i
-            (assert-diff file-and-line expected actual msg)))))))
+  (loop [expected (seq expected)
+         actual (seq actual)
+         i 0]
+    (cond
+      (and expected actual)
+      (do (when (not= (first expected) (first actual))
+            (with-context i
+              (assert-diff file-and-line (first expected) (first actual) msg)))
+          (recur (next expected) (next actual) (inc i)))
+      (or expected actual)
+      (fail file-and-line (+ i (count expected)) (+ i (count actual)) msg
+            "seq length is different"))))
 
 (defn assert-diff
   [file-and-line expected actual msg]
